@@ -1,0 +1,49 @@
+SQL> Alter system archive log stop;
+
+System altered.
+
+SQL> alter system set log_archive_dest='/u000/app/oraarch001/ALGOP2/arch';
+
+System altered.
+
+SQL> archive log list
+Database log mode              Archive Mode
+Automatic archival             Disabled
+Archive destination            /u000/app/oraarch001/ALGOP2/arch
+Oldest online log sequence     19866
+Next log sequence to archive   19868
+Current log sequence           19868
+
+SQL> Alter system archive log start;
+
+System altered.
+
+SQL> alter system switch logfile;
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> archive log list
+Database log mode              Archive Mode
+Automatic archival             Enabled
+Archive destination            /u000/app/oraarch001/ALGOP2/arch
+Oldest online log sequence     19869
+Next log sequence to archive   19871
+Current log sequence           19871
+
+
+/u000/app/oraarch001/ALGOP2/arch>ls -l
+total 256
+-rw-r-----    1 oracle   dba           48640 Nov 04 09:03 ALGOP2_1_19868.dbf
+-rw-r-----    1 oracle   dba            2048 Nov 04 09:03 ALGOP2_1_19869.dbf
+-rw-r-----    1 oracle   dba            7168 Nov 04 09:03 ALGOP2_1_19870.dbf
+
+
+Changes made to the initALGOP2.ora file also

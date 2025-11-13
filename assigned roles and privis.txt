@@ -1,0 +1,67 @@
+15
+ down vote  List all users who have been assigned a particular role
+
+-- Change 'DBA' to the required role
+select * from dba_role_privs where granted_role = 'DBA'List all roles given to a user
+
+-- Change 'PHIL@ to the required user
+select * from dba_role_privs where grantee = 'PHIL';List all privileges given to a user
+
+select
+  lpad(' ', 2*level) || granted_role "User, his roles and privileges"
+from
+  (
+  /* THE USERS */
+    select 
+      null     grantee, 
+      username granted_role
+    from 
+      dba_users
+    where
+      username like upper('%&enter_username%')
+  /* THE ROLES TO ROLES RELATIONS */ 
+  union
+    select 
+      grantee,
+      granted_role
+    from
+      dba_role_privs
+  /* THE ROLES TO PRIVILEGE RELATIONS */ 
+  union
+    select
+      grantee,
+      privilege
+    from
+      dba_sys_privs
+  )
+start with grantee is null
+connect by grantee = prior granted_role;Note: Taken from http://www.adp-gmbh.ch/ora/misc/recursively_list_privilege.html
+
+List which tables a certain role gives SELECT access to?
+
+-- Change 'DBA' to the required role.
+select * from role_tab_privs where role='DBA' and privilege = 'SELECT';List all tables a user can SELECT from?
+
+--Change 'PHIL' to the required user
+select * from dba_tab_privs where GRANTEE ='PHIL' and privilege = 'SELECT';List all users who can SELECT on a particular table (either through being given a relevant role or through a direct grant (ie grant select on atable to joe))? The result of this query should also show through which role the user has this access or whether it was a direct grant.
+
+-- Change 'TABLENAME' below
+select Grantee,'Granted Through Role' as Grant_Type, role, table_name
+from role_tab_privs rtp, dba_role_privs drp
+where rtp.role = drp.granted_role
+and table_name = 'TABLENAME' 
+union
+select Grantee,'Direct Grant' as Grant_type, null as role, table_name
+from dba_tab_privs
+where table_name = 'TABLENAME' ; 
+
+
+==============================SQL> desc user_role_privs;
+ Name                  Type              Description
+ USERNAME                    VARCHAR2(30) --Name of the user to whom the role has been granted.
+ GRANTED_ROLE                VARCHAR2(30) --Name of the role granted to the user.
+ ADMIN_OPTION                VARCHAR2(3)  --Whether the user is able to grant the role to another user or role. Equal to YES or NO.
+ DEFAULT_ROLE                VARCHAR2(3)  --Whether the role is enabled by default when the user connects to the database. Equal to YES or NO.
+ OS_GRANTED                  VARCHAR2(3)  --Whether the role was granted by the operating system.
+
+SELECT * FROM user_role_privs;

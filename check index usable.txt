@@ -1,0 +1,16 @@
+
+verify that the index is unusable by querying the data dictionary.
+
+SELECT INDEX_NAME AS "INDEX OR PARTITION NAME", STATUS
+  FROM   USER_INDEXES
+   WHERE  INDEX_NAME = 'I_EMP_ENAME'
+   UNION ALL
+   SELECT PARTITION_NAME AS "INDEX OR PARTITION NAME", STATUS
+   FROM   USER_IND_PARTITIONS
+   WHERE  PARTITION_NAME LIKE '%I_EMP_ENAME%';
+ 
+INDEX OR PARTITION NAME        STATUS
+------------------------------ --------
+I_EMP_ENAME                    N/A
+P1_I_EMP_ENAME                 UNUSABLE
+P2_I_EMP_ENAME                 USABLE
