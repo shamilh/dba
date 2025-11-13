@@ -1,0 +1,45 @@
+select getdate()
+	GO
+
+
+	-- Declaring parameters
+	DECLARE @Baksql VARCHAR(8000)
+	DECLARE @BackupFolder VARCHAR(100)
+	DECLARE @BackupFile VARCHAR(100)
+	DECLARE @BAK_PATH VARCHAR(4000)
+
+	-- Setting VALUE of  backup folder
+	SET @BackupFolder = 'E:\Dailybackup\'
+
+	-- Declaring cursor
+	DECLARE c_bakup CURSOR FAST_FORWARD READ_ONLY FOR  
+	SELECT NAME FROM SYS.DATABASES 
+	WHERE state_desc = 'ONLINE' -- Consider databases which are online
+	AND NAME NOT IN ('tempdb')  -- Exluding Temp databases
+
+	-- Opening and fetching next VALUEs from cursor
+	OPEN c_bakup 
+	FETCH NEXT FROM c_bakup INTO @BackupFile 
+
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+
+	-- Creating dynamic script for every databases backup which are online 
+	SET @Baksql = 'BACKUP DATABASE ['+@BackupFile+'] TO DISK = '''+@BackupFolder+@BackupFile+'.bak'' WITH FORMAT,COMPRESSION,copy_only ;'
+
+	-- Executing dynamic query to take backup
+	PRINT (@Baksql)
+	EXEC(@Baksql)
+
+	-- Opening and fetching next VALUEs from sursor
+	FETCH NEXT FROM c_bakup INTO @BackupFile 
+	END 
+
+	-- Closing and Deallocating cursor
+	CLOSE c_bakup
+	DEALLOCATE c_bakup
+
+	select getdate()
+	GO
+
+	
